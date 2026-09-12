@@ -1,0 +1,35 @@
+/*
+ * Optional plain-CSS utilities for apps not using Tailwind.
+ * Requires <DuoStateSync /> mounted so <html data-duo-state="..."> is set.
+ */
+
+:root {
+  --duo-hinge-size: 32px;
+}
+
+[data-duo-state="folded"] .duo-hide-folded {
+  display: none !important;
+}
+
+[data-duo-state="unfolded"] .duo-hide-unfolded {
+  display: none !important;
+}
+
+[data-duo-state="not-duo"] .duo-only-folded,
+[data-duo-state="not-duo"] .duo-only-unfolded,
+[data-duo-state="unknown"] .duo-only-folded,
+[data-duo-state="unknown"] .duo-only-unfolded {
+  display: none !important;
+}
+
+/* Two-pane layout that opens up only once unfolded, leaving a comfort
+   gutter straddling the physical crease; collapses to a single column
+   folded or on any non-Duo device. */
+.duo-two-pane {
+  display: block;
+}
+
+[data-duo-state="unfolded"] .duo-two-pane {
+  display: grid;
+  grid-template-columns: 1fr var(--duo-hinge-size) 1fr;
+}
