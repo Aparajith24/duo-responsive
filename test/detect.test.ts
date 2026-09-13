@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyViewport, getDuoProfiles, registerDuoProfile } from "../src/detect";
+import { classifyViewport, getDuoProfiles, getFoldStateFromWindow, registerDuoProfile } from "../src/detect";
 
 describe("classifyViewport", () => {
   it("classifies the folded iPhone Duo viewport", () => {
@@ -63,5 +63,33 @@ describe("classifyViewport", () => {
     const result = classifyViewport(720, 500, { dpr: 3, hasTouch: true });
     expect(result.state).toBe("folded");
     expect(result.profileId).toBe("iphone-duo-max");
+  });
+});
+
+describe("getFoldStateFromWindow", () => {
+  function fakeWindow(overrides: Partial<{ innerWidth: number; innerHeight: number; screenWidth: number; screenHeight: number; dpr: number }>): Window {
+    return {
+      innerWidth: overrides.innerWidth ?? 0,
+      innerHeight: overrides.innerHeight ?? 0,
+      screen: { width: overrides.screenWidth ?? 0, height: overrides.screenHeight ?? 0 },
+      devicePixelRatio: overrides.dpr ?? 3,
+      navigator: { maxTouchPoints: 5 },
+      ontouchstart: null,
+    } as unknown as Window;
+  }
+
+  it("uses screen dimensions, not innerWidth/innerHeight, so Safari page zoom doesn't misclassify fold state", () => {
+    // Unfolded device, but Safari's aA "Zoom In" has shrunk the layout
+    // viewport to look folded-sized. screen.width/height still report the
+    // true unfolded physical size and should win.
+    const win = fakeWindow({ innerWidth: 466, innerHeight: 678, screenWidth: 890, screenHeight: 626 });
+    const result = getFoldStateFromWindow(win);
+    expect(result.state).toBe("unfolded");
+  });
+
+  it("falls back to innerWidth/innerHeight when screen dimensions are unavailable", () => {
+    const win = fakeWindow({ innerWidth: 466, innerHeight: 678, screenWidth: 0, screenHeight: 0 });
+    const result = getFoldStateFromWindow(win);
+    expect(result.state).toBe("folded");
   });
 });

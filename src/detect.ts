@@ -73,11 +73,21 @@ export function classifyViewport(width: number, height: number, options: Classif
   return { state: "not-duo", width, height, profileId: null };
 }
 
+function getPhysicalViewportSize(win: Window): { width: number; height: number } {
+  const screenWidth = win.screen?.width;
+  const screenHeight = win.screen?.height;
+  if (screenWidth && screenHeight) {
+    return { width: screenWidth, height: screenHeight };
+  }
+  return { width: win.innerWidth, height: win.innerHeight };
+}
+
 /** Read the current window size and classify it. Safe to call only in a browser. */
 export function getFoldStateFromWindow(win: Window = window, options?: ClassifyOptions): DuoSnapshot {
   const dpr = win.devicePixelRatio;
   const hasTouch = "ontouchstart" in win || (win.navigator?.maxTouchPoints ?? 0) > 0;
-  return classifyViewport(win.innerWidth, win.innerHeight, {
+  const { width, height } = getPhysicalViewportSize(win);
+  return classifyViewport(width, height, {
     dpr,
     hasTouch,
     ...options,
