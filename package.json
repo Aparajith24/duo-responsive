@@ -1,6 +1,6 @@
 {
   "name": "iphone-duo-responsive",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Make React / Next.js / Vite apps responsive to Apple's foldable iPhone Duo (folded/unfolded viewport states) via a runtime heuristic, since Safari does not implement the CSS Viewport Segments API.",
   "type": "module",
   "sideEffects": false,
